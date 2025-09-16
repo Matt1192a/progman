@@ -365,6 +365,10 @@ iconify_client(client_t *c)
 void
 do_iconify(client_t *c)
 {
+	if (c->state & STATE_ZOOMED) {
+	   unzoom_client(c);
+	   c->state |= STATE_ICONIFIED_ZOOMED; }
+
 	XSetWindowAttributes attrs = { 0 };
 	XGCValues gv;
 
@@ -417,7 +421,11 @@ do_iconify(client_t *c)
 
 void
 uniconify_client(client_t *c)
-{
+{	
+	if (c->state & STATE_ICONIFIED_ZOOMED) {
+		c->state &= ~STATE_ICONIFIED_ZOOMED;
+		zoom_client(c); }
+		
 	if (c->desk != cur_desk) {
 		c->desk = cur_desk;
 		set_atoms(c->win, net_wm_desk, XA_CARDINAL, &cur_desk, 1);
@@ -430,12 +438,10 @@ uniconify_client(client_t *c)
 
 	XDestroyWindow(dpy, c->icon);
 	c->icon = None;
-	
 	if (c->icon_xftdraw) {
-	    XftDrawDestroy(c->icon_xftdraw);
-	    c->icon_xftdraw = None;
+		XftDrawDestroy(c->icon_xftdraw);
+		c->icon_xftdraw = None;
 	}
-	
 	XDestroyWindow(dpy, c->icon_label);
 	c->icon_label = None;
 
