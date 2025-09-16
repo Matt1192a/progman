@@ -428,14 +428,14 @@ uniconify_client(client_t *c)
 	c->state &= ~STATE_ICONIFIED;
 	set_wm_state(c, NormalState);
 
-	c->ignore_unmap++;
 	XDestroyWindow(dpy, c->icon);
 	c->icon = None;
-	c->ignore_unmap++;
+	
 	if (c->icon_xftdraw) {
-		XftDrawDestroy(c->icon_xftdraw);
-		c->icon_xftdraw = None;
+	    XftDrawDestroy(c->icon_xftdraw);
+	    c->icon_xftdraw = None;
 	}
+	
 	XDestroyWindow(dpy, c->icon_label);
 	c->icon_label = None;
 
